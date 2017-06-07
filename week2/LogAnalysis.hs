@@ -21,7 +21,7 @@ parse = ((<$>) parseMessage) . lines
 
 insert :: LogMessage -> MessageTree -> MessageTree
 insert msg@(LogMessage _ _ _) Leaf = Node Leaf msg Leaf
-insert msg@(LogMessage _ tm _) (Node lt msgn@(LogMessage _ tn _) rt) = if tm < tn then Node (insert msg lt) msgn rt else Node lt msg (insert msg rt)
+insert msg@(LogMessage _ tm _) (Node lt msgn@(LogMessage _ tn _) rt) = if tm < tn then Node (insert msg lt) msgn rt else Node lt msgn (insert msg rt)
 insert _ tree = tree
 
 -- exercise 3
