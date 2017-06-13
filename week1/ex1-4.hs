@@ -6,14 +6,10 @@ lastDigit n = mod n 10
 shift :: Integer -> Integer
 shift n = div n 10
 
-toDigitsRev :: Integer -> [Integer]
-toDigitsRev 0   = []
-toDigitsRev n
-    | n < 0     = []
-    | otherwise = lastDigit n : (toDigitsRev . shift) n
-
 toDigits :: Integer -> [Integer]
-toDigits n = (reverse . toDigitsRev) n
+toDigits n
+    | n <= 0    = []
+    | otherwise = (toDigits . shift) n ++ [lastDigit n]
 
 -- exercise 2
 
