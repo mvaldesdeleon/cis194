@@ -4,10 +4,8 @@ fun1 (x:xs)
     | even x    = (x - 2) * fun1 xs
     | otherwise = fun1 xs
 
-
 fun1' :: [Integer] -> Integer
 fun1' = product . map (subtract 2) . filter even
-
 
 fun2 :: Integer -> Integer
 fun2 1 = 0
