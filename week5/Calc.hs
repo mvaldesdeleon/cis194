@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+import qualified Data.Map as M
 import ExprT
 import Parser
 import StackVM
@@ -10,7 +11,7 @@ class Expr e where
     mul :: e -> e -> e
 
 instance Expr ExprT where
-    lit = Lit
+    lit = ExprT.Lit
     add = ExprT.Add
     mul = ExprT.Mul
 
@@ -48,14 +49,44 @@ instance Expr Program where
 compile :: String -> Maybe Program
 compile = parseExp lit add mul
 
+data VarExprT = Lit Integer
+              | Var String
+              | Add VarExprT VarExprT
+              | Mul VarExprT VarExprT
+  deriving (Show, Eq)
+
+class HasVars a where
+    var :: String -> a
+
+instance Expr VarExprT where
+    lit = Main.Lit
+    add = Main.Add
+    mul = Main.Mul
+
+instance HasVars VarExprT where
+    var = Main.Var
+
+instance Expr (M.Map String Integer -> Maybe Integer) where
+    lit a = \m -> Just a
+    add a b = \m -> (+) <$> a m <*> b m
+    mul a b = \m -> (*) <$> a m <*> b m
+
+instance HasVars (M.Map String Integer -> Maybe Integer) where
+    var v = \m -> M.lookup v m
+
+withVars :: [(String, Integer)]
+         -> (M.Map String Integer -> Maybe Integer)
+         -> Maybe Integer
+withVars vs exp = exp $ M.fromList vs
+
 eval :: ExprT -> Integer
 eval expr = case expr of
-    Lit n   -> n
+    ExprT.Lit n   -> n
     ExprT.Add a b -> eval a + eval b
     ExprT.Mul a b -> eval a * eval b
 
 evalStr :: String -> Maybe Integer
-evalStr = fmap eval . parseExp Lit ExprT.Add ExprT.Mul
+evalStr = fmap eval . parseExp ExprT.Lit ExprT.Add ExprT.Mul
 
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3 * -4) + 5"
