@@ -1,5 +1,8 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 import ExprT
 import Parser
+import StackVM
 
 class Expr e where
     lit :: Integer -> e
@@ -8,8 +11,8 @@ class Expr e where
 
 instance Expr ExprT where
     lit = Lit
-    add = Add
-    mul = Mul
+    add = ExprT.Add
+    mul = ExprT.Mul
 
 reify :: ExprT -> ExprT
 reify = id
@@ -30,21 +33,29 @@ newtype Mod7   = Mod7 Integer deriving (Eq, Show)
 instance Expr MinMax where
     lit = MinMax
     add (MinMax a) (MinMax b) = lit $ max a b
-    mul (MinMax a) (MinMax b)= lit $ min a b
+    mul (MinMax a) (MinMax b) = lit $ min a b
 
 instance Expr Mod7 where
     lit a = Mod7 $ a `mod` 7
     add (Mod7 a) (Mod7 b) = lit $ (a + b)
     mul (Mod7 a) (Mod7 b) = lit $ (a * b)
 
+instance Expr Program where
+    lit a = [PushI a]
+    add a b = a ++ b ++ [StackVM.Add]
+    mul a b = a ++ b ++ [StackVM.Mul]
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
+
 eval :: ExprT -> Integer
 eval expr = case expr of
     Lit n   -> n
-    Add a b -> eval a + eval b
-    Mul a b -> eval a * eval b
+    ExprT.Add a b -> eval a + eval b
+    ExprT.Mul a b -> eval a * eval b
 
 evalStr :: String -> Maybe Integer
-evalStr = fmap eval . parseExp Lit Add Mul
+evalStr = fmap eval . parseExp Lit ExprT.Add ExprT.Mul
 
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3 * -4) + 5"
