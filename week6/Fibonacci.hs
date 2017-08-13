@@ -25,3 +25,30 @@ streamMap fn (Cons a as) = Cons (fn a) $ streamMap fn as
 
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed fn x = Cons x $ streamFromSeed fn (fn x)
+
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+nats1 :: Stream Integer
+nats1 = streamMap (+1) nats
+
+squares :: [(Integer, Integer)]
+squares = [ (x, 2^x) | x <- [0..] ]
+
+rulerIndex :: Integer -> Integer
+rulerIndex n = fst $ last $ filter ((==) 0 . mod n . snd) $ takeWhile ((<= n) . snd) squares
+
+ruler :: Stream Integer
+ruler = streamMap rulerIndex nats1
+
+_interleaveStreams :: Stream a -> Stream a -> Stream a
+_interleaveStreams as (Cons b bs) = Cons b (interleaveStreams as bs)
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons a as) bs = Cons a (_interleaveStreams as bs)
+
+_ruler1 :: Integer -> Stream Integer
+_ruler1 n = interleaveStreams (streamRepeat n) (_ruler1 (n + 1))
+
+ruler1 :: Stream Integer
+ruler1 = _ruler1 0
