@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods #-}
+
 fib :: Integer -> Integer
 fib 0 = 0
 fib 1 = 1
@@ -52,3 +55,19 @@ _ruler1 n = interleaveStreams (streamRepeat n) (_ruler1 (n + 1))
 
 ruler1 :: Stream Integer
 ruler1 = _ruler1 0
+
+x :: Stream Integer
+x = Cons 0 (Cons 1 (streamRepeat 0))
+
+instance Num (Stream Integer) where
+    fromInteger n = Cons n (streamRepeat 0)
+    (+) (Cons a as) (Cons b bs) = Cons (a + b) ((+) as bs)
+    negate (Cons a as) = Cons (negate a) (negate as)
+    (*) (Cons a as) bbs@(Cons b bs) = Cons (a * b) (fromInteger a * bs + as * bbs)
+
+instance Fractional (Stream Integer) where
+    (/) (Cons a as) (Cons b bs) = qs
+        where qs = Cons (div a b) ((as - qs * bs) / fromInteger b)
+
+fibs3 :: Stream Integer
+fibs3 = x / (1 - x - x^2)
