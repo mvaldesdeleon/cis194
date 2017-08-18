@@ -71,3 +71,19 @@ instance Fractional (Stream Integer) where
 
 fibs3 :: Stream Integer
 fibs3 = x / (1 - x - x^2)
+
+data Matrix = Matrix Integer Integer Integer Integer
+    deriving Show
+
+instance Num Matrix where
+    fromInteger n = Matrix n n n n
+    (+) (Matrix a b c d) (Matrix e f g h) = Matrix (a + e) (b + f) (c + g) (d + h)
+    negate (Matrix a b c d) = Matrix (negate a) (negate b) (negate c) (negate d)
+    (*) (Matrix a b c d) (Matrix e f g h) = Matrix (a * e + b * g) (a * f + b * h) (c * e + d * g) (c * f + d * h)
+
+_b :: Matrix -> Integer
+_b (Matrix _ b _ _) = b
+
+fibs4 :: Integer -> Integer
+fibs4 0 = 0
+fibs4 n = _b $ (Matrix 1 1 1 0)^n
