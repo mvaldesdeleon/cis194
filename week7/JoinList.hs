@@ -50,4 +50,8 @@ dropJ i l | i > tagSize l - 1              = Empty
 dropJ i (Append m l r) | i - 1 < tagSize l = (dropJ i l) +++ r
                        | otherwise         = dropJ (i - tagSize l) r
 
--- takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ i l | i <= 0                         = Empty
+takeJ i l | i > tagSize l - 1              = l
+takeJ i (Append _ l r) | i - 1 < tagSize l = takeJ i l
+                       | otherwise         = l +++ takeJ (i - tagSize l) r
