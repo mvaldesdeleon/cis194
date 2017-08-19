@@ -43,7 +43,11 @@ indexJ i l | Size i > tagSize l - 1          = Nothing
 indexJ 0 (Single _ a)                        = Just a
 indexJ i (Append _ l r) | Size i < tagSize l = indexJ i l
                         | otherwise          = indexJ (i - (getSize . tagSize $ l)) r
---
--- dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+
+dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+dropJ i l | i <= 0                              = l
+dropJ i l | Size i > tagSize l - 1              = Empty
+dropJ i (Append m l r) | Size i - 1 < tagSize l = (dropJ i l) +++ r
+                       | otherwise              = dropJ (i - (getSize . tagSize $ l)) r
 
 -- takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
