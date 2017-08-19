@@ -36,7 +36,6 @@ inOrder :: MessageTree -> [LogMessage]
 inOrder Leaf = []
 inOrder (Node lt msg rt) = inOrder lt ++ [msg] ++ inOrder rt
 
-
 -- exercise 5
 
 filterBadErrors :: [LogMessage] -> [LogMessage]
