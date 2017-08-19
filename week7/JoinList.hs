@@ -1,4 +1,5 @@
 import Data.Monoid
+import Sized
 
 data JoinList m a = Empty
     | Single m a
@@ -12,3 +13,37 @@ tag :: Monoid m => JoinList m a -> m
 tag Empty = mempty
 tag (Single m _) = m
 tag (Append m _ _) = m
+
+(!!?) :: [a] -> Int -> Maybe a
+[]     !!? _         = Nothing
+_      !!? i | i < 0 = Nothing
+(x:xs) !!? 0         = Just x
+(x:xs) !!? i         = xs !!? (i-1)
+
+jlToList :: JoinList m a -> [a]
+jlToList Empty            = []
+jlToList (Single _ a)     = [a]
+jlToList (Append _ l1 l2) = jlToList l1 ++ jlToList l2
+
+x :: JoinList Size String
+x = Empty
+
+y :: JoinList Size String
+y = Single (Size 1) "boop"
+
+z :: JoinList Size String
+z = Append (Size 3) (Append (Size 2) (Single (Size 1) "best") (Single (Size 1) "juice")) (Single (Size 1) "tomato")
+
+tagSize :: (Sized b, Monoid b) => JoinList b a -> Size
+tagSize = size . tag
+
+indexJ :: (Sized b, Monoid b) => Int -> JoinList b a -> Maybe a
+indexJ i _ | i < 0                           = Nothing
+indexJ i l | Size i > tagSize l - 1          = Nothing
+indexJ 0 (Single _ a)                        = Just a
+indexJ i (Append _ l r) | Size i < tagSize l = indexJ i l
+                        | otherwise          = indexJ (i - (getSize . tagSize $ l)) r
+--
+-- dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+
+-- takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
