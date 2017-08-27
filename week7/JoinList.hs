@@ -1,5 +1,8 @@
+module JoinList where
+
 import Data.Monoid
 import Sized
+import Scrabble
 
 data JoinList m a = Empty
     | Single m a
@@ -25,15 +28,6 @@ jlToList Empty            = []
 jlToList (Single _ a)     = [a]
 jlToList (Append _ l1 l2) = jlToList l1 ++ jlToList l2
 
-x :: JoinList Size String
-x = Empty
-
-y :: JoinList Size String
-y = Single (Size 1) "boop"
-
-z :: JoinList Size String
-z = Append (Size 3) (Append (Size 2) (Single (Size 1) "best") (Single (Size 1) "juice")) (Single (Size 1) "tomato")
-
 tagSize :: (Sized b, Monoid b) => JoinList b a -> Int
 tagSize = getSize . size . tag
 
@@ -55,3 +49,6 @@ takeJ i l | i <= 0                         = Empty
 takeJ i l | i > tagSize l - 1              = l
 takeJ i (Append _ l r) | i - 1 < tagSize l = takeJ i l
                        | otherwise         = l +++ takeJ (i - tagSize l) r
+
+scoreLine :: String -> JoinList Score String
+scoreLine s = Single (scoreString s) s
