@@ -1,6 +1,7 @@
 module Party where
 
 import Data.Monoid
+import Data.Tree
 import Employee
 
 glCons :: Employee -> GuestList -> GuestList
@@ -12,3 +13,7 @@ instance Monoid GuestList where
 
 moreFun :: GuestList -> GuestList -> GuestList
 moreFun = max
+
+treeFold :: (b -> a -> b) -> (b -> b -> b) -> b -> Tree a -> b
+treeFold f g b (Node a ns) = f (foldl g b . map (treeFold f g b) $ ns) a
+
