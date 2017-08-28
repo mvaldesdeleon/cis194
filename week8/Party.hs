@@ -22,7 +22,7 @@ treeFold' :: (a -> [b] -> b) -> Tree a -> b
 treeFold' f (Node a ns) = f a (map (treeFold' f) ns)
 
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel boss subtrees = (glCons boss (mconcat . map snd $ subtrees), mconcat . map fst $ subtrees)
+nextLevel boss subtrees = (glCons boss (mconcat . map snd $ subtrees), mconcat . map (uncurry moreFun) $ subtrees)
 
 maxFun :: Tree Employee -> GuestList
 maxFun = uncurry moreFun . treeFold' nextLevel
