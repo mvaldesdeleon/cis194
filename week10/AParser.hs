@@ -70,3 +70,12 @@ next fb (fn, s) = fmap (first fn) . fb $ s
 instance Applicative Parser where
     pure a = Parser (\s -> Just (a, s))
     (Parser fa) <*> (Parser fb) = Parser (\s -> fa s >>= next fb)
+
+abParser :: Parser (Char, Char)
+abParser = (,) <$> char 'a' <*> char 'b'
+
+abParser_ :: Parser ()
+abParser_ = fmap (const ()) abParser
+
+intPair :: Parser [Integer]
+intPair = (\a _ b -> [a, b]) <$> posInt <*> char ' ' <*> posInt
