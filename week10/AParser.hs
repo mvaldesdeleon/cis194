@@ -79,3 +79,7 @@ abParser_ = fmap (const ()) abParser
 
 intPair :: Parser [Integer]
 intPair = (\a _ b -> [a, b]) <$> posInt <*> char ' ' <*> posInt
+
+instance Alternative Parser where
+    empty = Parser (\s -> Nothing)
+    (Parser fa) <|> (Parser fb) = Parser (\s -> fa s <|> fb s)
