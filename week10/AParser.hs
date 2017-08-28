@@ -63,3 +63,10 @@ first f (a, c) = (f a, c)
 
 instance Functor Parser where
     fmap f (Parser fa) = Parser (fmap (first f) . fa)
+
+next :: (String -> Maybe (a, String)) -> (a -> b, String) -> Maybe (b, String)
+next fb (fn, s) = fmap (first fn) . fb $ s
+
+instance Applicative Parser where
+    pure a = Parser (\s -> Just (a, s))
+    (Parser fa) <*> (Parser fb) = Parser (\s -> fa s >>= next fb)
