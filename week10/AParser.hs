@@ -74,8 +74,11 @@ instance Applicative Parser where
 abParser :: Parser (Char, Char)
 abParser = (,) <$> char 'a' <*> char 'b'
 
+mute :: Parser a -> Parser ()
+mute p = fmap (const ()) p
+
 abParser_ :: Parser ()
-abParser_ = fmap (const ()) abParser
+abParser_ = mute abParser
 
 intPair :: Parser [Integer]
 intPair = (\a _ b -> [a, b]) <$> posInt <*> char ' ' <*> posInt
@@ -83,3 +86,12 @@ intPair = (\a _ b -> [a, b]) <$> posInt <*> char ' ' <*> posInt
 instance Alternative Parser where
     empty = Parser (\s -> Nothing)
     (Parser fa) <|> (Parser fb) = Parser (\s -> fa s <|> fb s)
+
+posInt_ :: Parser ()
+posInt_ = mute posInt
+
+upper :: Parser ()
+upper = mute $ satisfy isUpper
+
+intOrUppercase :: Parser ()
+intOrUppercase = posInt_ <|> upper
