@@ -2,6 +2,7 @@ module Party where
 
 import Data.Monoid
 import Data.Tree
+import Data.List
 import Employee
 
 glCons :: Employee -> GuestList -> GuestList
@@ -25,3 +26,13 @@ nextLevel boss subtrees = (glCons boss (mconcat . map snd $ subtrees), mconcat .
 
 maxFun :: Tree Employee -> GuestList
 maxFun = uncurry moreFun . treeFold' nextLevel
+
+main :: IO ()
+main = readFile "company.txt" >>= glPrint . maxFun . read
+
+glPrint :: GuestList -> IO ()
+glPrint (GL empls fun) = putStrLn ("Total fun: " ++ show fun) >>
+    emplsPrint empls
+
+emplsPrint :: [Employee] -> IO ()
+emplsPrint = sequence_ . map putStrLn . sort . map empName
