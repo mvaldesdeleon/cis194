@@ -17,3 +17,5 @@ moreFun = max
 treeFold :: (b -> a -> b) -> (b -> b -> b) -> b -> Tree a -> b
 treeFold f g b (Node a ns) = f (foldl g b . map (treeFold f g b) $ ns) a
 
+nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
+nextLevel boss subtrees = (glCons boss (mconcat . map snd $ subtrees), mconcat . map fst $ subtrees)
