@@ -7,7 +7,7 @@ import Control.Monad.Random
 ------------------------------------------------------------
 -- Die values
 
-newtype DieValue = DV { unDV :: Int } 
+newtype DieValue = DV { unDV :: Int }
   deriving (Eq, Ord, Show, Num)
 
 first :: (a -> b) -> (a, c) -> (b, c)
