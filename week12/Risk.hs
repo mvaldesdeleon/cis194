@@ -51,9 +51,7 @@ resolve (b, bd) = Battlefield a d
         d = defenders b - (length . filter (not . win) $ pairs)
 
 battle :: Battlefield -> Rand StdGen Battlefield
-battle = mapRand resolveG . roll
-    where
-        resolveG (a, g) = (resolve a, g)
+battle = fmap resolve . roll
 
 invade :: Battlefield -> Rand StdGen Battlefield
 invade b =
@@ -63,3 +61,11 @@ invade b =
         else invade b
     where
         finalized b = (defenders b) == 0 || (attackers b) < 2
+
+successProb' :: [Battlefield] -> Double
+successProb' bs = liftA2 (/) (fromIntegral . length . filter victory) (fromIntegral . length) bs
+    where
+        victory b = (defenders b) == 0
+
+successProb :: Battlefield -> Rand StdGen Double
+successProb = fmap successProb' . mapM invade . replicate 1000
