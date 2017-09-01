@@ -54,3 +54,12 @@ battle :: Battlefield -> Rand StdGen Battlefield
 battle = mapRand resolveG . roll
     where
         resolveG (a, g) = (resolve a, g)
+
+invade :: Battlefield -> Rand StdGen Battlefield
+invade b =
+    battle b >>= \b ->
+    if finalized b
+        then return b
+        else invade b
+    where
+        finalized b = (defenders b) == 0 || (attackers b) < 2
